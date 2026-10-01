@@ -1,0 +1,158 @@
+@InclusiRH.Api_HostAddress = http://localhost:5075
+@token = cole-o-accessToken-do-login
+@refreshToken = cole-o-refreshToken-do-login
+
+### Registrar colaborador
+POST {{InclusiRH.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "nome": "Ana Souza",
+  "email": "ana.souza@empresa.com",
+  "senha": "SenhaForte1",
+  "cargo": "Analista de Gente",
+  "departamento": "Pessoas",
+  "papel": "Colaborador"
+}
+
+### Login
+POST {{InclusiRH.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ana.souza@empresa.com",
+  "senha": "SenhaForte1"
+}
+
+### Renovar sessão (troca o par; o refresh token enviado deixa de valer)
+POST {{InclusiRH.Api_HostAddress}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "accessToken": "{{token}}",
+  "refreshToken": "{{refreshToken}}"
+}
+
+###
+GET {{InclusiRH.Api_HostAddress}}/api/colaboradores?pagina=1&tamanho=20
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Abrir denúncia (multipart; o campo "evidencias" é opcional e pode se repetir)
+POST {{InclusiRH.Api_HostAddress}}/api/denuncias
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=limite
+
+--limite
+Content-Disposition: form-data; name="tipoOcorrencia"
+
+AssedioMoral
+--limite
+Content-Disposition: form-data; name="descricao"
+
+Relato da ocorrência.
+--limite
+Content-Disposition: form-data; name="isAnonima"
+
+true
+--limite
+Content-Disposition: form-data; name="evidencias"; filename="print.png"
+Content-Type: image/png
+
+< ./exemplos/print.png
+--limite--
+
+### Baixar evidência (mesmo acesso da denúncia)
+GET {{InclusiRH.Api_HostAddress}}/api/denuncias/INC-00000000-XXXXXXXX/evidencias/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{token}}
+
+###
+GET {{InclusiRH.Api_HostAddress}}/api/denuncias
+Authorization: Bearer {{token}}
+
+###
+PUT {{InclusiRH.Api_HostAddress}}/api/denuncias/00000000-0000-0000-0000-000000000000/tratativa
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "parecerRH": "Medidas adotadas e retorno à pessoa denunciante.",
+  "evidenciasAnexadas": "ata-comite.pdf"
+}
+
+### Contestar com nova evidência (multipart; arquivos só ao contestar)
+PUT {{InclusiRH.Api_HostAddress}}/api/denuncias/00000000-0000-0000-0000-000000000000/validacao
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=limite
+
+--limite
+Content-Disposition: form-data; name="statusValidacao"
+
+Contestado
+--limite
+Content-Disposition: form-data; name="justificativaContestacao"
+
+A tratativa não endereçou o relato.
+--limite
+Content-Disposition: form-data; name="evidencias"; filename="audio.m4a"
+Content-Type: audio/mp4
+
+< ./exemplos/audio.m4a
+--limite--
+
+###
+GET {{InclusiRH.Api_HostAddress}}/api/treinamentos
+Authorization: Bearer {{token}}
+
+###
+POST {{InclusiRH.Api_HostAddress}}/api/treinamentos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "titulo": "Letramento étnico-racial",
+  "descricao": "História e cultura afro-brasileira e indígena no ambiente de trabalho.",
+  "categoria": "LetramentoEtnicoRacial",
+  "cargaHoraria": 4,
+  "modulo": "Módulo 1 — Leis 10.639/2003 e 11.645/2008",
+  "conteudo": "Conceitos, casos e condutas esperadas da liderança.",
+  "obrigatorio": true
+}
+
+###
+POST {{InclusiRH.Api_HostAddress}}/api/treinamentos/00000000-0000-0000-0000-000000000000/progresso
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "EmAndamento"
+}
+
+###
+GET {{InclusiRH.Api_HostAddress}}/api/treinamentos/relatorios-conclusao
+Authorization: Bearer {{token}}
+
+###
+POST {{InclusiRH.Api_HostAddress}}/api/autodeclaracao
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "etnia": "Parda",
+  "genero": "Mulher",
+  "orientacaoSexual": "Bissexual",
+  "temDeficiencia": false,
+  "descricaoDeficiencia": null,
+  "contextoSocioeconomico": "DeDoisACincoSalariosMinimos",
+  "consentimentoLgpd": true
+}
+
+###
+GET {{InclusiRH.Api_HostAddress}}/api/autodeclaracao
+Authorization: Bearer {{token}}
+
+###
+GET {{InclusiRH.Api_HostAddress}}/api/autodeclaracao/relatorios-esg
+Authorization: Bearer {{token}}
+
+###
